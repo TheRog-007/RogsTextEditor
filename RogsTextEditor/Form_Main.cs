@@ -7,10 +7,9 @@ using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
-using System.Security.AccessControl;
+using System.Diagnostics;
 
 namespace RogsTextEditor
 {
@@ -311,7 +310,7 @@ namespace RogsTextEditor
             //delete existing sub keys
             regKey = Registry.CurrentUser.OpenSubKey(CNST_STR_REGISTRYKEY, true);
 
-            foreach (string strTemp in regKey.GetValueNames())
+            foreach (string strTemp in regKey.GetSubKeyNames())
             {
               regKey.DeleteSubKey(strTemp);
             }
@@ -369,17 +368,22 @@ namespace RogsTextEditor
 
             RegistryKey regKey;
             RegistryKey regSubKey;
+            int intNum = 0;
+            ToolStripItem MNUTemp;
 
-            foreach (ToolStripMenuItem MNUTemp in this.MNURecentFiles.DropDownItems)
+            while (intNum != this.MNURecentFiles.DropDownItems.Count)
             {
+                MNUTemp = this.MNURecentFiles.DropDownItems[intNum];
+
                 if (MNUTemp.Tag.ToString() == strFileName)
                 {
+                    intNum = 0;
                     this.MNURecentFiles.DropDownItems.Remove(MNUTemp);
                     //remove from registry
                     //check registry for item
                     regKey = Registry.CurrentUser.OpenSubKey(CNST_STR_REGISTRYKEY, true);
 
-                    foreach (string strTemp in regKey.GetValueNames())
+                    foreach (string strTemp in regKey.GetSubKeyNames())
                     {
                         regSubKey = regKey.OpenSubKey(strTemp);
 
@@ -391,6 +395,10 @@ namespace RogsTextEditor
                     }
 
                     regKey.Close();
+                }
+                else
+                {
+                    intNum++;
                 }
             }
 
@@ -505,56 +513,66 @@ namespace RogsTextEditor
                     return;
                 }
             }
-                this.RTXTDocument.Clear();
+            this.RTXTDocument.Clear();
 
-                try
+            try
+            {
+                if (Path.GetExtension(strFileName.ToLower()) == ".txt")
                 {
-                    if (Path.GetExtension(strFileName.ToLower()) == ".txt")
+                    //load plain text file
+                    try
                     {
-                        //load plain text file
-                        try
+                        using (FileStream filRead = new FileStream(strFileName, FileMode.Open, FileAccess.Read))
                         {
-                            using (FileStream filRead = new FileStream(strFileName, FileMode.Open, FileAccess.Read))
+                            using (StreamReader strmRead = new StreamReader(filRead))
                             {
-                                using (StreamReader strmRead = new StreamReader(filRead))
-                                {
-                                    strData = strmRead.ReadLine();
-                                    this.RTXTDocument.AppendText(strData);
-                                    intLine++;
-                                }
+                                strData = strmRead.ReadLine();
+                                this.RTXTDocument.AppendText(strData);
+                                intLine++;
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Error!\n\n" + ex.Message, "File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            this.RTXTDocument.LoadFile(strFileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Error!\n\n" + ex.Message, "File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
+                        MessageBox.Show("Error!\n\n" + ex.Message, "File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
                     }
-
-                    this.SLBLStatus.Text = "Edit";
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show("Error!\n\n" + ex.Message, "File Open Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    try
+                    {
+                        this.RTXTDocument.LoadFile(strFileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error!\n\n" + ex.Message, "File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
                 }
 
+                this.SLBLStatus.Text = "Edit";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error!\n\n" + ex.Message, "File Open Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            if (Path.GetExtension(strFileName).ToLower() == "rtf")
+            { 
+                this.CMBType.Text = "RTF";
+            }
+            else
+            {
+                this.CMBType.Text = "Text";
+            }
+
+            this.SLBLStatus.Text = "Edit";
             AddToRecentList(strFileName);
             //set title
             this.Text = CNST_STR_TITLE + " - " + Path.GetFileName(strFileName);
         }
-        private void SaveFile()
+        private void SaveFile(bool blnSilent)
         {
             /*
               Created 07/04/2025 By Roger Williams
@@ -562,7 +580,12 @@ namespace RogsTextEditor
               Save file
 
               Will save as RTF or plain text
-              If text saves ines to stream
+              If text saves lines to stream
+              
+
+              VARS
+
+              blnSilent - used by print skip messages and registry/menu entries creation
             */
             FileMode fileModeType;
 
@@ -604,8 +627,12 @@ namespace RogsTextEditor
                 }
             }
 
-            AddToRecentList(strFileName);
-            MessageBox.Show("Saved!", "File Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (!blnSilent)
+            {
+                this.SLBLStatus.Text = "Modified";
+                AddToRecentList(strFileName);
+                MessageBox.Show("Saved!", "File Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
 
@@ -706,7 +733,7 @@ namespace RogsTextEditor
 
             if (strFileName.Length != 0 && MNUTemp.Name != "MNUSaveAs")
             {
-                SaveFile();
+                SaveFile(false);
             }
             else
             {
@@ -723,7 +750,7 @@ namespace RogsTextEditor
                 if (fdlgSave.ShowDialog() == DialogResult.OK)
                 {
                     strFileName = fdlgSave.FileName;
-                    SaveFile();
+                    SaveFile(false);
                 }
             }
         }
@@ -894,8 +921,73 @@ namespace RogsTextEditor
 
         private void MNUPrint_Click(object sender, EventArgs e)
         {
-            this.printDoc.DocumentName = strFileName;
-            this.printDoc.Print();
+            /*
+              Created 09/04/2025 By Roger Williams
+
+              Prints file
+              
+              First saves to temp file (in case edited but not saved)
+              Second creates a processes to open temp file and print it
+              Third deletes temp file
+
+            */
+
+            Process pro;
+            string strStatus = this.SLBLStatus.Text;
+            string strRename = "";
+            string strTemp = Path.GetTempFileName();  //create temp file
+            string strFileNameCur = strFileName;      //save cur filename if any
+
+            //if unsaved changes saves as temp file
+            if (this.SLBLStatus.Text == "New" || this.SLBLStatus.Text == "Modified")
+                { 
+                strRename = Path.GetDirectoryName(strTemp) + "\\" + Path.GetFileNameWithoutExtension(strTemp);
+
+                //check if txt or RTF
+                if (this.CMBType.Text == "RTF")
+                {
+                    strRename += ".rtf";
+                }
+                else 
+                {
+                    strRename += ".txt";
+                }
+
+                //rename file
+                File.Move(strTemp, strRename);
+                strFileName = strRename;
+                strTemp = strRename;
+                //save data to temp file
+                SaveFile(true);
+            }
+            else
+            {
+                //if unedited use current filename
+                strTemp = strFileName;
+            }
+
+            //print
+            this.SLBLStatus.Text = "Printing";
+            pro = new Process();
+            pro.StartInfo.UseShellExecute = true;
+            pro.StartInfo.Verb = "print";
+            pro.StartInfo.FileName = strTemp;
+            pro.StartInfo.WorkingDirectory = Path.GetDirectoryName(strTemp);
+            pro.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            pro.Start();
+            //wait till finished
+            pro.WaitForExit();
+            this.SLBLStatus.Text = strStatus;
+
+            //check if temp file
+            if (strFileName != strFileNameCur)
+            {
+                //delete temp file
+                File.Delete(strFileName);
+                //reset filename to pre-print status
+                strFileName = strFileNameCur;
+            }
         }
     }
 }
+ 

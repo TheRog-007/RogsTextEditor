@@ -33,12 +33,12 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUNew = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.MNURecentFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUSave = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUSaveAs = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUClose = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.MNUPrint = new System.Windows.Forms.ToolStripMenuItem();
-            this.MNUPrintPreview = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUExit = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,7 +68,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.CMBFonts = new System.Windows.Forms.ComboBox();
             this.printDoc = new System.Drawing.Printing.PrintDocument();
-            this.MNURecentFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUSMenu.SuspendLayout();
             this.TLSMenu.SuspendLayout();
             this.STAStatus.SuspendLayout();
@@ -96,7 +95,6 @@
             this.MNUClose,
             this.toolStripMenuItem1,
             this.MNUPrint,
-            this.MNUPrintPreview,
             this.toolStripMenuItem2,
             this.openToolStripMenuItem,
             this.MNUExit});
@@ -117,6 +115,12 @@
             this.MNUOpen.Size = new System.Drawing.Size(180, 22);
             this.MNUOpen.Text = "Open";
             this.MNUOpen.Click += new System.EventHandler(this.MNUOpen_Click);
+            // 
+            // MNURecentFiles
+            // 
+            this.MNURecentFiles.Name = "MNURecentFiles";
+            this.MNURecentFiles.Size = new System.Drawing.Size(180, 22);
+            this.MNURecentFiles.Text = "Recent Files";
             // 
             // MNUSave
             // 
@@ -150,12 +154,6 @@
             this.MNUPrint.Size = new System.Drawing.Size(180, 22);
             this.MNUPrint.Text = "Print";
             this.MNUPrint.Click += new System.EventHandler(this.MNUPrint_Click);
-            // 
-            // MNUPrintPreview
-            // 
-            this.MNUPrintPreview.Name = "MNUPrintPreview";
-            this.MNUPrintPreview.Size = new System.Drawing.Size(180, 22);
-            this.MNUPrintPreview.Text = "Print Preview";
             // 
             // toolStripMenuItem2
             // 
@@ -455,12 +453,6 @@
             this.CMBFonts.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.CMBFonts_DrawItem);
             this.CMBFonts.SelectedValueChanged += new System.EventHandler(this.CMBFonts_SelectedValueChanged);
             // 
-            // MNURecentFiles
-            // 
-            this.MNURecentFiles.Name = "MNURecentFiles";
-            this.MNURecentFiles.Size = new System.Drawing.Size(180, 22);
-            this.MNURecentFiles.Text = "Recent Files";
-            // 
             // FRMMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -509,7 +501,6 @@
         private System.Windows.Forms.ToolStripMenuItem MNUClose;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem MNUPrint;
-        private System.Windows.Forms.ToolStripMenuItem MNUPrintPreview;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem MNUExit;
         private System.Windows.Forms.ToolStripMenuItem MNUOpen;
