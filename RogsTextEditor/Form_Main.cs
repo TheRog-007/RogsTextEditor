@@ -13,8 +13,48 @@ using System.Diagnostics;
 
 namespace RogsTextEditor
 {
+
     public partial class FRMMain : Form
     {
+        //used for menu to get colours
+        class MyColours : ProfessionalColorTable
+        {
+            public override Color ToolStripDropDownBackground 
+            {
+                get { return Color.DarkGreen; }
+            }
+
+            public override Color MenuItemSelected
+            {
+                get { return Color.Green; }
+            }
+
+            //public override Color MenuItemSelectedGradientBegin
+            //{
+            //    get { return Color.DarkCyan; }
+            //}
+            //public override Color MenuItemSelectedGradientEnd
+            //{
+            //    get { return Color.Cyan; }
+            //}
+
+            public override Color MenuItemPressedGradientBegin
+            {
+                get { return Color.Green; }
+            }
+
+            public override Color MenuItemPressedGradientEnd
+            {
+                get { return Color.Green; }
+            }
+        }
+        //used by above to set menu colours
+        class NewColourRenderer : ToolStripProfessionalRenderer
+        {
+            public NewColourRenderer() : base(new MyColours()) { }
+        }
+
+
         readonly string CNST_STR_TITLE = "Rog's Text Editor 2025";
         readonly string CNST_STR_REGISTRYKEY =  @"Software\RogsTextEditor2025";
 
@@ -31,11 +71,15 @@ namespace RogsTextEditor
         Brush bruColours = new SolidBrush(Color.Black);
         Color colColours = Color.Black;
         Rectangle rectColours;
-        //colour etc for font combobox
+        Rectangle rectFontSize;
+        Rectangle rectType;
+        //colour etc for comboboxes
         Font fntFonts = new Font("Microsoft Sans Serif", 8.25f, FontStyle.Regular);
-        Color colFonts = Color.Black;
-        Brush bruFonts = new SolidBrush(Color.Black);
         Rectangle rectFonts;
+        //for combobox background and font colour
+        Pen penTemp = new Pen(Color.DarkGreen);
+        // Create solid brush.
+        SolidBrush bruTemp = new SolidBrush(Color.DarkGreen);
 
         public FRMMain()
         {
@@ -194,6 +238,9 @@ namespace RogsTextEditor
                     MNUFile = new ToolStripMenuItem();
                     MNUFile.Text = Path.GetFileName(regSubKey.Name) + ":" + Path.GetFileName(strTemp);
                     MNUFile.Tag = strTemp;
+                    MNUFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
+                    MNUFile.ForeColor = Color.White;
+                  
                     //add click handler
                     MNUFile.Click += RecentMenuItem_Click;
                     //add to recent files menu
@@ -284,6 +331,9 @@ namespace RogsTextEditor
             MNUFile = new ToolStripMenuItem();
             MNUFile.Text = intRecent.ToString() + ":" + Path.GetFileName(strFileName);
             MNUFile.Tag = strFileName;
+            MNUFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            MNUFile.ForeColor = Color.White;
+
             //add click handler
             MNUFile.Click += RecentMenuItem_Click;
             //add to recent files menu
@@ -420,70 +470,6 @@ namespace RogsTextEditor
               strFile     - if recent file this is the file to open
             */
 
-
-            /*
-             OpenFileDialog fdlgOpen = new OpenFileDialog();
-            string strData = "";
-            int intLine = 1;
-
-            fdlgOpen.Title = "Open File";
-            fdlgOpen.InitialDirectory = Application.StartupPath;
-            fdlgOpen.DefaultExt = "txt";
-            fdlgOpen.Filter = "Text|*.txt|Rich Text File|*.rtf";
-            fdlgOpen = new OpenFileDialog();
-
-            if (fdlgOpen.ShowDialog() == DialogResult.OK)
-            {
-                strFileName = fdlgOpen.FileName;
-                this.RTXTDocument.Clear();
-
-                try
-                {
-                    if (Path.GetExtension(strFileName.ToLower()) == ".txt")
-                    {
-                        //load plain text file
-                        try
-                        {
-                            using (FileStream filRead = new FileStream(strFileName, FileMode.Open, FileAccess.Read))
-                            {
-                                using (StreamReader strmRead = new StreamReader(filRead))
-                                {
-                                    strData = strmRead.ReadLine();
-                                    this.RTXTDocument.AppendText(strData);
-                                    intLine++;
-                                }
-                            }
-
-                            AddToRecentList(fdlgOpen.FileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Error!\n\n" + ex.Message, "File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            this.RTXTDocument.LoadFile(strFileName);
-                            AddToRecentList(fdlgOpen.FileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Error!\n\n" + ex.Message, "File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
-                    }
-
-                    this.SLBLStatus.Text = "Edit";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error!\n\n" + ex.Message, "File Open Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-            */
             OpenFileDialog fdlgOpen = new OpenFileDialog();
             string strData = "";
             int intLine = 1;
@@ -635,10 +621,45 @@ namespace RogsTextEditor
             }
         }
 
+        private void SetValuesOnSubItems(List<ToolStripMenuItem> MNUItems)
+        {
+            /*
+              Created 010/04/2025 By Roger Williams
+            
+              Removes the image block from all menu items
 
+              Copied from:
+
+              https://stackoverflow.com/questions/32577447/c-sharp-removing-submenu-item-image-margins
+              
+            */
+
+            MNUItems.ForEach(item =>
+            {
+                var dropdown = (ToolStripDropDownMenu)item.DropDown;
+             
+                if (dropdown != null)
+                {
+                    dropdown.ShowImageMargin = false;
+                    SetValuesOnSubItems(item.DropDownItems.OfType<ToolStripMenuItem>().ToList());
+                }
+            });
+        }
         //form events etc
         private void FRMMain_Load(object sender, EventArgs e)
         {
+            this.TOOLTIPText.BackColor = Color.LightGreen;
+            this.TOOLTIPText.ForeColor = Color.DarkBlue;
+            this.TOOLTIPText.IsBalloon = false; 
+            this.TOOLTIPText.UseFading = true;
+            this.TOOLTIPText.OwnerDraw = true;
+
+            //set tooltips
+            this.TOOLTIPText.SetToolTip(this.CMBColours, "Font Colours");
+            this.TOOLTIPText.SetToolTip(this.CMBFonts, "Fonts");
+            this.TOOLTIPText.SetToolTip(this.CMBType, "Plain Text or RTF Format?");
+            this.TOOLTIPText.SetToolTip(this.CMBSize, "Font Size");
+            this.TOOLTIPText.SetToolTip(this.CHKWordWrap, "Word Wrap?");
 
             //init statusbar
             this.SLBLColRow.Text = "Row: " + intRow.ToString() + " Col: " + intCol.ToString();
@@ -651,6 +672,10 @@ namespace RogsTextEditor
             SetComboBoxKeyPress();
             //get recent files list
             GetRecentRegistryData();
+            //set custom colours for menu
+            this.MNUSMenu.Renderer = new NewColourRenderer();
+            //remove image block from menu
+            SetValuesOnSubItems(this.MNUSMenu.Items.OfType<ToolStripMenuItem>().ToList());
         }
 
         private void RTXTDocument_SelectionChanged(object sender, EventArgs e)
@@ -833,12 +858,13 @@ namespace RogsTextEditor
               
             */
             rectColours = e.Bounds;
+            e.Graphics.FillRectangle(bruTemp, rectColours);
 
             if (e.Index >= 0)
             {
                 colColours = Color.FromName(((ComboBox)sender).Items[e.Index].ToString());
                 bruColours = new SolidBrush(colColours);
-                e.Graphics.DrawString(((ComboBox)sender).Items[e.Index].ToString(), fntColours, Brushes.Black, rectColours.X, rectColours.Top);
+                e.Graphics.DrawString(((ComboBox)sender).Items[e.Index].ToString(), fntColours, Brushes.White, rectColours.X, rectColours.Top);
                 //draw bar in colour
                 e.Graphics.FillRectangle(bruColours, rectColours.X + 130, rectColours.Y + 5, rectColours.Width - 60, rectColours.Height - 10);
             }
@@ -855,11 +881,12 @@ namespace RogsTextEditor
             */
 
             rectFonts = e.Bounds;
+            e.Graphics.FillRectangle(bruTemp, rectFonts);
 
             if (e.Index >= 0)
             {
                 fntColours = new Font(((ComboBox)sender).Items[e.Index].ToString(), 8.25f, FontStyle.Regular);
-                e.Graphics.DrawString(((ComboBox)sender).Items[e.Index].ToString(), fntColours, Brushes.Black, rectFonts.X, rectFonts.Top);
+                e.Graphics.DrawString(((ComboBox)sender).Items[e.Index].ToString(), fntColours, Brushes.White, rectFonts.X, rectFonts.Top);
             }
         }
 
@@ -987,6 +1014,25 @@ namespace RogsTextEditor
                 //reset filename to pre-print status
                 strFileName = strFileNameCur;
             }
+        }
+
+        private void TOOLTIPText_Draw(object sender, DrawToolTipEventArgs e)
+        {
+            e.DrawBackground();
+            e.DrawBorder();
+            e.DrawText();
+        }
+
+        private void CMBSize_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            rectFontSize = e.Bounds;
+            e.Graphics.FillRectangle(bruTemp, rectFontSize);
+        }
+
+        private void CMBType_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            rectType = e.Bounds;
+            e.Graphics.FillRectangle(bruTemp, rectType);
         }
     }
 }
