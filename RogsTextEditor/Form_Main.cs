@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace RogsTextEditor
 {
@@ -76,6 +77,7 @@ namespace RogsTextEditor
         //colour etc for comboboxes
         Font fntFonts = new Font("Microsoft Sans Serif", 8.25f, FontStyle.Regular);
         Rectangle rectFonts;
+        Rectangle rectStatus;
         //for combobox background and font colour
         Pen penTemp = new Pen(Color.DarkGreen);
         // Create solid brush.
@@ -1033,6 +1035,13 @@ namespace RogsTextEditor
         {
             rectType = e.Bounds;
             e.Graphics.FillRectangle(bruTemp, rectType);
+        }
+
+        private void STAStatus_Paint(object sender, PaintEventArgs e)
+        {
+            Rectangle rectStatus = e.ClipRectangle;
+            e.Graphics.FillRectangle(bruTemp, rectStatus);
+
         }
     }
 }

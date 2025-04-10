@@ -328,9 +328,12 @@
             this.STAStatus.Size = new System.Drawing.Size(993, 22);
             this.STAStatus.TabIndex = 3;
             this.STAStatus.Text = "statusStrip1";
+            this.STAStatus.Paint += new System.Windows.Forms.PaintEventHandler(this.STAStatus_Paint);
             // 
             // SLBLColRow
             // 
+            this.SLBLColRow.BackColor = System.Drawing.Color.DarkGreen;
+            this.SLBLColRow.ForeColor = System.Drawing.Color.White;
             this.SLBLColRow.Name = "SLBLColRow";
             this.SLBLColRow.Size = new System.Drawing.Size(10, 17);
             this.SLBLColRow.Text = " ";
@@ -338,6 +341,8 @@
             // 
             // SLBLStatus
             // 
+            this.SLBLStatus.BackColor = System.Drawing.Color.DarkGreen;
+            this.SLBLStatus.ForeColor = System.Drawing.Color.White;
             this.SLBLStatus.Name = "SLBLStatus";
             this.SLBLStatus.Size = new System.Drawing.Size(118, 17);
             this.SLBLStatus.Text = "toolStripStatusLabel1";
@@ -508,6 +513,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Olive;
             this.ClientSize = new System.Drawing.Size(993, 538);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.STAStatus);
@@ -515,6 +521,7 @@
             this.Controls.Add(this.TLSMenu);
             this.Controls.Add(this.MNUSMenu);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MNUSMenu;
             this.MaximizeBox = false;
             this.Name = "FRMMain";
