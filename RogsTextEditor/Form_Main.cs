@@ -492,6 +492,8 @@ namespace RogsTextEditor
                 {
                     strFileName = fdlgOpen.FileName;
                 }
+                else
+                    return;
             }
             else
             {
@@ -518,9 +520,12 @@ namespace RogsTextEditor
                             {
                                 using (StreamReader strmRead = new StreamReader(filRead))
                                 {
-                                    strData = strmRead.ReadLine();
-                                    this.RTXTDocument.AppendText(strData);
-                                    intLine++;
+                                    while (!strmRead.EndOfStream)
+                                    {
+                                        strData = strmRead.ReadLine() + "\n";
+                                        this.RTXTDocument.AppendText(strData);
+                                        intLine++;
+                                    }
                                 }
                             }
                         }
@@ -570,6 +575,12 @@ namespace RogsTextEditor
             {
                 try
                 {
+                    //if extension NOT RTF change it!
+                    if (Path.GetExtension(strFileName).ToLower() != "RTF")
+                    {
+                        strFileName =Path.ChangeExtension(strFileName, "rtf");
+                    }
+
                     this.RTXTDocument.SaveFile(strFileName);
                 }
                 catch (Exception ex)
@@ -582,9 +593,15 @@ namespace RogsTextEditor
             {
                 //save as plain text  
                 try
-                {
-                    //opens file sets contents to null
-                    fileModeType = FileMode.Truncate;
+                {  
+                    if (File.Exists(strFileName))
+                    {
+                        //opens file sets contents to null
+                        fileModeType = FileMode.Truncate;
+                    }
+                    else
+                        fileModeType = FileMode.Create;
+                    
 
                     using (FileStream filWrite = new FileStream(strFileName, fileModeType, FileAccess.Write))
                     {
