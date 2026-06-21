@@ -12,6 +12,36 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Security.AccessControl;
 
+/*
+  Created 01/04/2025 By Roger Williams
+
+  Reimaginging of a prehistoric Delphi 6 project to create a simple text editor!
+
+
+  Done for fun, still in development, how hard can it be?
+
+  This version features:
+
+  - Uses the registry for recent files list
+  - supports text and RTF
+  - converts RTF to Text, Text To RTF!
+  - prints
+  - recent files list
+
+  RTF Support:
+
+  - bold/italic/underline
+  - font size
+  - font colour
+  - font type
+  - left/right/sentre alignment
+
+  To Do:
+  - print preview
+
+
+*/
+
 namespace RogsTextEditor
 {
     public partial class FRMMain : Form
@@ -38,10 +68,16 @@ namespace RogsTextEditor
         Brush bruFonts = new SolidBrush(Color.Black);
         Rectangle rectFonts;
 
+        //used when loading a file to ignore rich textbox text changed event
+        bool blnloading = false;
+
         public FRMMain()
         {
             InitializeComponent();
         }
+
+
+        //******* start custom functions*****
 
         private void SetTextFont()
         {
@@ -68,7 +104,11 @@ namespace RogsTextEditor
 
             */
 
-            if (this.STAStatus.Text == "Modified" || this.STAStatus.Text == "New")
+      
+            //make sure not trying to save empty file!
+            if (this.RTXTDocument.Lines.Count() == 0) return;
+
+            if (this.SLBLStatus.Text == "Modified" || this.SLBLStatus.Text == "New")
             {
                 if (MessageBox.Show("Save Changes?", "Lose Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                 {
@@ -400,6 +440,12 @@ namespace RogsTextEditor
         private void OpenFile(bool blnJustOpen, string strFile)
         {
             /*
+              Modified 21/06/2026 By Roger Williams
+             
+              trying wizard new idea for absolute text changes by loading the file
+              into a hidden richtextbox and comparing the lines!
+              
+             
               Created 07/04/2025 By Roger Williams
             
               Open file
@@ -480,6 +526,9 @@ namespace RogsTextEditor
             string strData = "";
             int intLine = 1;
 
+            //disable rich textbox text changed event
+            blnloading = true;
+
             if (!blnJustOpen)
             {
                 fdlgOpen.Title = "Open File";
@@ -507,7 +556,8 @@ namespace RogsTextEditor
                     return;
                 }
             }
-                this.RTXTDocument.Clear();
+            
+            this.RTXTDocument.Clear();
 
                 try
                 {
@@ -548,8 +598,7 @@ namespace RogsTextEditor
                         }
                     }
 
-                    this.SLBLStatus.Text = "Edit";
-                }
+                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error!\n\n" + ex.Message, "File Open Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -558,7 +607,16 @@ namespace RogsTextEditor
             AddToRecentList(strFileName);
             //set title
             this.Text = CNST_STR_TITLE + " - " + Path.GetFileName(strFileName);
+            //enable rich textbox text changed event
+            blnloading = false;
+            //enable save as
+            this.MNUSaveAs.Enabled = true;
+            //set status
+            this.SLBLStatus.Text = "Edit";
+            //activate editor
+            this.RTXTDocument.Enabled = true;
         }
+
         private void SaveFile()
         {
             /*
@@ -578,7 +636,7 @@ namespace RogsTextEditor
                     //if extension NOT RTF change it!
                     if (Path.GetExtension(strFileName).ToLower() != "RTF")
                     {
-                        strFileName =Path.ChangeExtension(strFileName, "rtf");
+                        strFileName = Path.ChangeExtension(strFileName, "rtf");
                     }
 
                     this.RTXTDocument.SaveFile(strFileName);
@@ -593,7 +651,7 @@ namespace RogsTextEditor
             {
                 //save as plain text  
                 try
-                {  
+                {
                     if (File.Exists(strFileName))
                     {
                         //opens file sets contents to null
@@ -601,7 +659,7 @@ namespace RogsTextEditor
                     }
                     else
                         fileModeType = FileMode.Create;
-                    
+
 
                     using (FileStream filWrite = new FileStream(strFileName, fileModeType, FileAccess.Write))
                     {
@@ -613,6 +671,9 @@ namespace RogsTextEditor
                             }
                         }
                     }
+
+                    ////disable editor
+                    //this.RTXTDocument.Enabled = false;
                 }
                 catch (Exception ex)
                 {
@@ -622,9 +683,43 @@ namespace RogsTextEditor
             }
 
             AddToRecentList(strFileName);
+
+            if (this.SLBLStatus.Text == "New")
+            {
+                this.SLBLStatus.Text = "Saved";
+                //enabled save as function
+                this.MNUSaveAs.Enabled = true;
+            }
+        
             MessageBox.Show("Saved!", "File Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private void EnableDisableRTFControls(bool blnEnable)
+        {
+            /*
+              Created 30/06/2026 By Roger Williams
+            
+              enables/disables RTF controls
+
+              VARS
+
+              blnenable - enables/disables RTF controls
+
+
+            */
+
+            this.TBTCentre.Enabled = blnEnable;
+            this.TBTNBold.Enabled = blnEnable;
+            this.TBTNItalics.Enabled = blnEnable;
+            this.TBTNRight.Enabled = blnEnable;
+            this.TBTNUnderline.Enabled = blnEnable;
+            this.CMBColours.Enabled = blnEnable;
+            this.CMBFonts.Enabled = blnEnable;
+            this.CMBSize.Enabled = blnEnable;
+            this.CHKWordWrap.Enabled = blnEnable;
+        }
+
+        //*****end custom functions*****
 
         //form events etc
         private void FRMMain_Load(object sender, EventArgs e)
@@ -634,13 +729,17 @@ namespace RogsTextEditor
             this.SLBLColRow.Text = "Row: " + intRow.ToString() + " Col: " + intCol.ToString();
             this.SLBLStatus.Text = "";
 
-            //init comboboxs
+            //init comboboxes
             GetSystemFonts();
             GetSystemColours();
             //set combbox events
             SetComboBoxKeyPress();
             //get recent files list
             GetRecentRegistryData();
+            //disable RTF controls
+            EnableDisableRTFControls(false);
+            //disable editor
+            this.RTXTDocument.Enabled = false;
         }
 
         private void RTXTDocument_SelectionChanged(object sender, EventArgs e)
@@ -662,7 +761,7 @@ namespace RogsTextEditor
             intCol++;
             intRow++;
             this.SLBLColRow.Text = "Row: " + intRow.ToString() + " Col: " + intCol.ToString();
-            this.SLBLStatus.Text = this.RTXTDocument.Modified == true ? "Modified" : "";
+           // this.SLBLStatus.Text = this.RTXTDocument.Modified == true ? "Modified" : "";
         }
 
         
@@ -771,6 +870,9 @@ namespace RogsTextEditor
             this.RTXTDocument.Clear();
             strFileName = "";
             this.Text = CNST_STR_TITLE;
+            //disable editor
+            this.RTXTDocument.Enabled = false;
+            this.MNUSaveAs.Enabled = false;
         }
 
         private void MNUNew_Click(object sender, EventArgs e)
@@ -784,6 +886,8 @@ namespace RogsTextEditor
             this.CMBFonts.Text = this.RTXTDocument.Font.Name;
             this.CMBSize.Text = this.RTXTDocument.Font.Size.ToString();
             this.RTXTDocument.Focus();
+            //enable rich textbox
+            this.RTXTDocument.Enabled = true;
         }
 
         private void MNUSaveAs_Click(object sender, EventArgs e)
@@ -893,26 +997,27 @@ namespace RogsTextEditor
 
         private void RTXTDocument_ModifiedChanged(object sender, EventArgs e)
         {
-            /*
-              Created 08/04/2025 By Roger Williams
-            
-              Sets status bar status to modified if not new file
-              
-            */
 
-            if (this.RTXTDocument.Modified)
-            {
-                if (strFileName.Length != 0)
-                {
-                    this.SLBLStatus.Text = "Modified";
-                }
-            }
         }
 
         private void MNUPrint_Click(object sender, EventArgs e)
         {
             this.printDoc.DocumentName = strFileName;
             this.printDoc.Print();
+        }
+
+        private void RTXTDocument_TextChanged(object sender, EventArgs e)
+        {
+            if (this.RTXTDocument.Lines.Count() != 0)
+            {
+                if (!blnloading)
+                {
+                 if (this.SLBLStatus.Text != "New")
+                    { 
+                        this.SLBLStatus.Text = "Modified";
+                    }
+                }
+            }
         }
     }
 }

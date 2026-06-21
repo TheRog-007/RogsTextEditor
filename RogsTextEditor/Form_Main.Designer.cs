@@ -33,6 +33,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUNew = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.MNURecentFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUSave = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUSaveAs = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUClose = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,7 +52,6 @@
             this.TBTNLeft = new System.Windows.Forms.ToolStripButton();
             this.TBTCentre = new System.Windows.Forms.ToolStripButton();
             this.TBTNRight = new System.Windows.Forms.ToolStripButton();
-            this.TBTNJustify = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.STAStatus = new System.Windows.Forms.StatusStrip();
             this.SLBLColRow = new System.Windows.Forms.ToolStripStatusLabel();
@@ -68,7 +68,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.CMBFonts = new System.Windows.Forms.ComboBox();
             this.printDoc = new System.Drawing.Printing.PrintDocument();
-            this.MNURecentFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.MNUSMenu.SuspendLayout();
             this.TLSMenu.SuspendLayout();
             this.STAStatus.SuspendLayout();
@@ -118,6 +117,12 @@
             this.MNUOpen.Text = "Open";
             this.MNUOpen.Click += new System.EventHandler(this.MNUOpen_Click);
             // 
+            // MNURecentFiles
+            // 
+            this.MNURecentFiles.Name = "MNURecentFiles";
+            this.MNURecentFiles.Size = new System.Drawing.Size(180, 22);
+            this.MNURecentFiles.Text = "Recent Files";
+            // 
             // MNUSave
             // 
             this.MNUSave.Name = "MNUSave";
@@ -127,6 +132,7 @@
             // 
             // MNUSaveAs
             // 
+            this.MNUSaveAs.Enabled = false;
             this.MNUSaveAs.Name = "MNUSaveAs";
             this.MNUSaveAs.Size = new System.Drawing.Size(180, 22);
             this.MNUSaveAs.Text = "Save As";
@@ -188,7 +194,6 @@
             this.TBTNLeft,
             this.TBTCentre,
             this.TBTNRight,
-            this.TBTNJustify,
             this.toolStripSeparator3});
             this.TLSMenu.Location = new System.Drawing.Point(0, 24);
             this.TLSMenu.Name = "TLSMenu";
@@ -278,17 +283,6 @@
             this.TBTNRight.Text = "toolStripButton3";
             this.TBTNRight.Click += new System.EventHandler(this.TBTNRight_Click);
             // 
-            // TBTNJustify
-            // 
-            this.TBTNJustify.Checked = true;
-            this.TBTNJustify.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.TBTNJustify.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.TBTNJustify.Image = ((System.Drawing.Image)(resources.GetObject("TBTNJustify.Image")));
-            this.TBTNJustify.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.TBTNJustify.Name = "TBTNJustify";
-            this.TBTNJustify.Size = new System.Drawing.Size(23, 22);
-            this.TBTNJustify.Text = "toolStripButton1";
-            // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
@@ -321,6 +315,7 @@
             // RTXTDocument
             // 
             this.RTXTDocument.AcceptsTab = true;
+            this.RTXTDocument.Enabled = false;
             this.RTXTDocument.Location = new System.Drawing.Point(0, 60);
             this.RTXTDocument.Name = "RTXTDocument";
             this.RTXTDocument.Size = new System.Drawing.Size(989, 453);
@@ -328,6 +323,7 @@
             this.RTXTDocument.Text = "";
             this.RTXTDocument.SelectionChanged += new System.EventHandler(this.RTXTDocument_SelectionChanged);
             this.RTXTDocument.ModifiedChanged += new System.EventHandler(this.RTXTDocument_ModifiedChanged);
+            this.RTXTDocument.TextChanged += new System.EventHandler(this.RTXTDocument_TextChanged);
             // 
             // panel1
             // 
@@ -455,12 +451,6 @@
             this.CMBFonts.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.CMBFonts_DrawItem);
             this.CMBFonts.SelectedValueChanged += new System.EventHandler(this.CMBFonts_SelectedValueChanged);
             // 
-            // MNURecentFiles
-            // 
-            this.MNURecentFiles.Name = "MNURecentFiles";
-            this.MNURecentFiles.Size = new System.Drawing.Size(180, 22);
-            this.MNURecentFiles.Text = "Recent Files";
-            // 
             // FRMMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -518,7 +508,6 @@
         private System.Windows.Forms.ToolStripButton TBTNLeft;
         private System.Windows.Forms.ToolStripButton TBTCentre;
         private System.Windows.Forms.ToolStripButton TBTNRight;
-        private System.Windows.Forms.ToolStripButton TBTNJustify;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ComboBox CMBColours;
